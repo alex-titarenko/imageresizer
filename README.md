@@ -1,4 +1,6 @@
 # ImageProxy
+[![Build status](https://ci.appveyor.com/api/projects/status/8ew9bxvyvqaiakak?svg=true)](https://ci.appveyor.com/project/T-Alex/imageproxy)
+
 Resizing and caching of images from web on the fly (WCF service)
 
 ## Structure of request
@@ -22,4 +24,4 @@ http://images.example.com/Medium/?url=https://www.google.com.ua/images/srpr/logo
 * **ClientCacheMaxAge** - time span of client cache max age.
 
 ## License
-ImageProxy is under the [MIT license](https://github.com/T-Alex/ImageProxy/blob/master/LICENSE.md).
+ImageProxy is under the [MIT license](LICENSE.md).
