@@ -6,9 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProxy", "ImageProxy\Im
 EndProject
 
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = TAlex.WebSite.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -21,8 +18,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{90282CA3-68BA-4E36-A7C3-28D4B12A33A1} = {2812B94A-6B8E-4E75-9AC1-45432FF6F23D}
 	EndGlobalSection
 EndGlobal
