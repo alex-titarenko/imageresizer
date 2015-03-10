@@ -1,7 +1,7 @@
 # ImageProxy
 [![Build status](https://ci.appveyor.com/api/projects/status/8ew9bxvyvqaiakak?svg=true)](https://ci.appveyor.com/project/T-Alex/imageproxy)
 
-Resizing and caching images from web on the fly (WCF service)
+Resizing and caching images from web on the fly (WCF service).
 
 ## Structure of request
 ```
