@@ -25,6 +25,8 @@ namespace TAlex.ImageProxy
     {
         #region Fields
 
+        private const string DownloadUserAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+
         private static readonly List<string> _imageSizeSettings = new List<string>()
         {
             "Icon", "Small", "Medium", "Detail"
@@ -165,7 +167,11 @@ namespace TAlex.ImageProxy
             }
 
             string originalName = ResolveFileName(fileName, ImageSize.OriginalImageSize);
-            new WebClient().DownloadFile(uri, originalName);
+            using (var webClient = new WebClient())
+            {
+                webClient.Headers.Add(HttpRequestHeader.UserAgent, DownloadUserAgent);
+                webClient.DownloadFile(uri, originalName);
+            }
 
             if (imageSize.Name == ImageSize.OriginalImageSize)
             {
