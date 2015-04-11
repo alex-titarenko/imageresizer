@@ -232,10 +232,12 @@ namespace TAlex.ImageProxy
 
         private static string NormalizeUrl(string url)
         {
-            if (url.StartsWith(Uri.UriSchemeHttp))
-                return url;
-            else
-                return Uri.UriSchemeHttp + Uri.SchemeDelimiter + url;
+            var targetUrl = url;
+            if (url.StartsWith("base64:", StringComparison.InvariantCultureIgnoreCase))
+            {
+                targetUrl = Encoding.UTF8.GetString(Convert.FromBase64String(url.Substring(7)));
+            }
+            return targetUrl.StartsWith(Uri.UriSchemeHttp) ? targetUrl : (Uri.UriSchemeHttp + Uri.SchemeDelimiter + targetUrl);
         }
 
         private static string GetPathName(Uri uri, string defaultExtension = null)
