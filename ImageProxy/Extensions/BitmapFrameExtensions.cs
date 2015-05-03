@@ -53,6 +53,17 @@ namespace TAlex.ImageProxy.Extensions
             }
         }
 
+        public static Stream GetStream(this BitmapFrame frame)
+        {
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(frame);
+
+            var stream = new MemoryStream();
+            encoder.Save(stream);
+            stream.Position = 0;
+            return stream;
+        }
+
         private static BitmapFrame Resize(BitmapFrame bitmap, double scaleX, double scaleY)
         {
             TransformedBitmap tbBitmap = new TransformedBitmap(bitmap, new ScaleTransform(scaleX, scaleY));

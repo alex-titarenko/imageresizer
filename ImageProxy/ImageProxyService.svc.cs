@@ -12,6 +12,7 @@ using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Hosting;
 using System.Windows.Media.Imaging;
 using TAlex.ImageProxy.Extensions;
@@ -23,52 +24,21 @@ namespace TAlex.ImageProxy
     [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
     public class ImageProxyService : IImageProxyService
     {
-        #region Fields
-
-        private const string DownloadUserAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
-
-        private static readonly List<string> _imageSizeSettings = new List<string>()
-        {
-            "Icon", "Small", "Medium", "Detail"
-        };
-
-        private static readonly string _imageCachePath;
-        private static readonly IDictionary<string, ImageSize> _imageSizes = new Dictionary<string, ImageSize>();
-
-        #endregion
-
         #region Properties
 
-        private TimeSpan ClientCacheMaxAge
+        public ProxySettings Settings
         {
-            get
-            {
-                return TimeSpan.Parse(ConfigurationManager.AppSettings["ClientCacheMaxAge"], CultureInfo.InvariantCulture);
-            }
+            get;
+            private set;
         }
 
         #endregion
 
         #region Constructors
 
-        static ImageProxyService()
+        public ImageProxyService()
         {
-            try
-            {
-                _imageSizes.Clear();
-                _imageSizeSettings.ForEach(x => _imageSizes.Add(GetImageSize(x)));
-
-                _imageCachePath = ConfigurationManager.AppSettings["ImageCachePath"];
-
-                if (!Directory.Exists(_imageCachePath))
-                {
-                    Directory.CreateDirectory(_imageCachePath);
-                }
-            }
-            catch (Exception exc)
-            {
-                Trace.TraceError(exc.Message, exc);
-            }
+            Settings = ProxySettings.Current;
         }
 
         #endregion
@@ -86,9 +56,10 @@ namespace TAlex.ImageProxy
             try
             {
                 ImageSize imageSize = StringToImageSize(size);
-                if (WebOperationContext.Current != null)
+                var context = WebOperationContext.Current;
+
+                if (context != null)
                 {
-                    WebOperationContext context = WebOperationContext.Current;
                     if (context.IncomingRequest.IfModifiedSince.HasValue)
                     {
                         context.OutgoingResponse.StatusCode = HttpStatusCode.NotModified;
@@ -96,7 +67,7 @@ namespace TAlex.ImageProxy
                     }
                     SetCacheHeaders(context.OutgoingResponse);
                 }
-                return GetCachedStream(NormalizeUrl(url), imageSize);
+                return GetResultStream(NormalizeUrl(url), imageSize);
             }
             catch (Exception exc)
             {
@@ -114,89 +85,95 @@ namespace TAlex.ImageProxy
             response.ContentType = "image/png";
             response.Headers[HttpResponseHeader.CacheControl] = "public";
             response.LastModified = new DateTime(1900, 1, 1);
-            TimeSpan maxAge = ClientCacheMaxAge;
-            response.Headers[HttpResponseHeader.Expires] = (DateTime.Now + maxAge).ToUniversalTime().ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
+            response.Headers[HttpResponseHeader.Expires] = (DateTime.Now + Settings.ClientCacheMaxAge).ToUniversalTime().ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
         }
 
         private Stream GetErrorStream()
         {
             if (WebOperationContext.Current != null)
             {
-                WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.InternalServerError;
                 WebOperationContext.Current.OutgoingResponse.ContentType = "text/html";
             }
-            return new MemoryStream(Encoding.UTF8.GetBytes("<h1>Error 404</h1><h2>Requested page not found</h2>"));
+            return new MemoryStream(Encoding.UTF8.GetBytes("<h1>Error 500</h1><h2>Internal Server Error</h2>"));
         }
 
-        private Stream GetCachedStream(string url, ImageSize imageSize)
+        private Stream GetResultStream(Uri uri, ImageSize imageSize)
         {
-            Uri uri = new Uri(url);
-            string requestFileName = GetDownloadPath(uri);
-            string cachedFileName = ResolveFileName(requestFileName, imageSize.ToString());
-
-            //looking for cached file on disk
-            if (File.Exists(cachedFileName))
+            if (Settings.UseLocalCache)
             {
-                return OpenImageStream(cachedFileName);
-            }
-            
-            // looking for original file disk
-            string original = ResolveFileName(requestFileName, ImageSize.OriginalImageSize);
+                string requestFileName = GetDownloadPath(uri);
+                string cachedFileName = ResolveFileName(requestFileName, imageSize.ToString());
 
-            if (File.Exists(original))
-            {
-                return GetResizedImage(OpenImageStream(original), imageSize, requestFileName);
-            }
-            
+                // looking for cached file on disk
+                if (File.Exists(cachedFileName))
+                {
+                    return OpenImageStream(cachedFileName);
+                }
+
+                // looking for original file on disk
+                string original = ResolveFileName(requestFileName, ImageSize.OriginalImageSize);
+
+                if (File.Exists(original))
+                {
+                    return GetResizedImage(OpenImageStream(original), imageSize, requestFileName);
+                }
+            }            
             return GetImageStream(uri, imageSize);
         }
 
         private Stream GetImageStream(Uri uri, ImageSize imageSize)
         {
             string fileName = GetDownloadPath(uri);
-            string folderPath = Path.Combine(_imageCachePath, uri.Host + Path.GetDirectoryName(uri.LocalPath));
 
-            if (!Path.IsPathRooted(folderPath))
+            try
             {
-                folderPath = Path.Combine(HostingEnvironment.ApplicationPhysicalPath, folderPath);
-            }
+                var request = (HttpWebRequest)HttpWebRequest.Create(uri);
+                request.UserAgent = Settings.UserAgent;
 
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
+                using (var response = request.GetResponse())
+                {
+                    var imageStream = new MemoryStream();
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        responseStream.CopyTo(imageStream);
+                        imageStream.Position = 0;
+                    }
 
-            string originalName = ResolveFileName(fileName, ImageSize.OriginalImageSize);
-            using (var webClient = new WebClient())
-            {
-                webClient.Headers.Add(HttpRequestHeader.UserAgent, DownloadUserAgent);
-                webClient.DownloadFile(uri, originalName);
-            }
+                    if (Settings.UseLocalCache)
+                    {
+                        CreateLocalCacheDirectory(uri);
+                        string originalName = ResolveFileName(fileName, ImageSize.OriginalImageSize);
 
-            if (imageSize.Name == ImageSize.OriginalImageSize)
-            {
-                return OpenImageStream(originalName);
+                        using (var fileStream = new FileStream(originalName, FileMode.Create, FileAccess.Write))
+                        {
+                            imageStream.CopyTo(fileStream);
+                            imageStream.Position = 0;
+                        }
+                    }
+
+                    return (imageSize.Name == ImageSize.OriginalImageSize) ? imageStream : GetResizedImage(imageStream, imageSize, fileName);
+                }
             }
-            else
+            catch (Exception exc)
             {
-                return GetResizedImage(OpenImageStream(originalName), imageSize, fileName);
+                Trace.TraceError(exc.ToString());
+                return GetErrorStream();
             }
         }
 
-        private Stream GetResizedImage(Stream stream, ImageSize size, string fileName)
+        private Stream GetResizedImage(Stream originalStream, ImageSize size, string fileName)
         {
-            BitmapFrame frame = ImageHelper.ReadBitmapFrame(stream);
-            return ResizeAndSave(frame, size, fileName);
-        }
-
-        private Stream ResizeAndSave(BitmapFrame image, ImageSize size, string realName)
-        {
-            BitmapFrame resized = image.ResizeImage(size.Width, size.Height);
-
-            //saving to fileSystem
-            string name = ResolveFileName(realName, size.ToString());
-            resized.SaveToFile(name);
-            return OpenImageStream(name);
+            BitmapFrame frame = ImageHelper.ReadBitmapFrame(originalStream);
+            BitmapFrame resizedFrame = frame.ResizeImage(size.Width, size.Height);
+            
+            if (Settings.UseLocalCache)
+            {
+                string name = ResolveFileName(fileName, size.ToString());
+                resizedFrame.SaveToFile(name);
+                return OpenImageStream(name);
+            }
+            return resizedFrame.GetStream();
         }
 
         private static Stream OpenImageStream(string fileName)
@@ -207,7 +184,7 @@ namespace TAlex.ImageProxy
         private ImageSize StringToImageSize(string value)
         {
             ImageSize imageSize;
-            if (_imageSizes.TryGetValue(value, out imageSize))
+            if (Settings.PredefinedImageSizes.TryGetValue(value, out imageSize))
             {
                 return imageSize;
             }
@@ -217,8 +194,8 @@ namespace TAlex.ImageProxy
         private string GetDownloadPath(Uri uri)
         {
             return String.IsNullOrWhiteSpace(uri.Query)
-                ? String.Format("{0}{1}", _imageCachePath, GetPathName(uri))
-                : String.Format("{0}{1}_{2}", _imageCachePath, GetPathName(uri), uri.Query.GetHashCode());
+                ? String.Format("{0}{1}", Settings.LocalCachePath, GetPathName(uri))
+                : String.Format("{0}{1}_{2}", Settings.LocalCachePath, GetPathName(uri), uri.Query.GetHashCode());
         }
 
         private static string ResolveFileName(string file, string size)
@@ -236,14 +213,14 @@ namespace TAlex.ImageProxy
             return path;
         }
 
-        private static string NormalizeUrl(string url)
+        private static Uri NormalizeUrl(string url)
         {
             var targetUrl = url;
             if (url.StartsWith("base64:", StringComparison.InvariantCultureIgnoreCase))
             {
                 targetUrl = Encoding.UTF8.GetString(Convert.FromBase64String(url.Substring(7)));
             }
-            return targetUrl.StartsWith(Uri.UriSchemeHttp) ? targetUrl : (Uri.UriSchemeHttp + Uri.SchemeDelimiter + targetUrl);
+            return new Uri(targetUrl.StartsWith(Uri.UriSchemeHttp) ? targetUrl : (Uri.UriSchemeHttp + Uri.SchemeDelimiter + targetUrl));
         }
 
         private static string GetPathName(Uri uri, string defaultExtension = null)
@@ -266,9 +243,18 @@ namespace TAlex.ImageProxy
             return String.Format("{0}{1}{2}", dirSeparator, uri.Host, strLocalPath.Replace("%20", " "));
         }
 
-        private static KeyValuePair<string, ImageSize> GetImageSize(string name)
+        private void CreateLocalCacheDirectory(Uri uri)
         {
-            return new KeyValuePair<string, ImageSize>(name, ImageSize.Parse(ConfigurationManager.AppSettings[name], name));
+            string folderPath = Path.Combine(Settings.LocalCachePath, uri.Host + Path.GetDirectoryName(uri.LocalPath));
+
+            if (!Path.IsPathRooted(folderPath))
+            {
+                folderPath = Path.Combine(HostingEnvironment.ApplicationPhysicalPath, folderPath);
+            }
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
         }
 
         #endregion

@@ -81,6 +81,7 @@
     <Compile Include="IImageProxyService.cs" />
     <Compile Include="ImageSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProxySettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />

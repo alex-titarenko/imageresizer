@@ -58,7 +58,8 @@ namespace TAlex.ImageProxy
 
         public static ImageSize Parse(string s, string name)
         {
-            if (String.Equals(name, OriginalImageSize, StringComparison.OrdinalIgnoreCase))
+            if (String.Equals(s, OriginalImageSize, StringComparison.OrdinalIgnoreCase) ||                
+                String.Equals(name, OriginalImageSize, StringComparison.OrdinalIgnoreCase))
             {
                 return new ImageSize(-1, -1, OriginalImageSize);
             }
