@@ -7,21 +7,26 @@ Resizing and caching images from web on the fly (WCF service).
 ```
 {service_url}/{image_size}/?url={image_url}
 ```
-*image_size* - size in pixels: width x height or some of preset values (Icon, Small, Medium, Detail)
+*image_size* - size in pixels: `width x height` or some of preset values (Small, Medium, Detail, Original)
+
+*image_url* - an URL for image to resizing (can be encoded in base64 format).
 
 ## Examples of usage
 ```
 http://images.example.com/200x150/?url=https://www.google.com.ua/images/srpr/logo11w.png
 http://images.example.com/Medium/?url=https://www.google.com.ua/images/srpr/logo11w.png
+http://images.example.com/Original/?url=https://www.google.com.ua/images/srpr/logo11w.png
+http://images.example.com/Original/?url=base64:aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS51YS9pbWFnZXMvc3Jwci9sb2dvMTF3LnBuZw==
 ```
 
 ## Configuration (Web.config)
-* **Icon** - size in pixels for Icon predefined value.
 * **Small** - size in pixels for Small predefined value.
 * **Medium** - size in pixels for Medium predefined value.
 * **Detail** - size in pixels for Detail predefined value.
-* **ImageCachePath** - path for cache of images.
+* **UseLocalCache** - a boolean flag that indicates whether to use local file cache.
+* **LocalCachePath** - folder path to local file cache.
 * **ClientCacheMaxAge** - time span of client cache max age.
+* **UserAgent** - user agent string for downloading images.
 
 ## License
 ImageProxy is under the [MIT license](LICENSE.md).

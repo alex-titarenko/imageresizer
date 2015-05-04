@@ -55,7 +55,6 @@ namespace TAlex.ImageProxy
 
             try
             {
-                ImageSize imageSize = StringToImageSize(size);
                 var context = WebOperationContext.Current;
 
                 if (context != null)
@@ -67,7 +66,7 @@ namespace TAlex.ImageProxy
                     }
                     SetCacheHeaders(context.OutgoingResponse);
                 }
-                return GetResultStream(NormalizeUrl(url), imageSize);
+                return GetResultStream(NormalizeUrl(url), StringToImageSize(size));
             }
             catch (Exception exc)
             {
@@ -124,8 +123,6 @@ namespace TAlex.ImageProxy
 
         private Stream GetImageStream(Uri uri, ImageSize imageSize)
         {
-            string fileName = GetDownloadPath(uri);
-
             try
             {
                 var request = (HttpWebRequest)HttpWebRequest.Create(uri);
@@ -142,17 +139,11 @@ namespace TAlex.ImageProxy
 
                     if (Settings.UseLocalCache)
                     {
-                        CreateLocalCacheDirectory(uri);
-                        string originalName = ResolveFileName(fileName, ImageSize.OriginalImageSize);
-
-                        using (var fileStream = new FileStream(originalName, FileMode.Create, FileAccess.Write))
-                        {
-                            imageStream.CopyTo(fileStream);
-                            imageStream.Position = 0;
-                        }
+                        SaveOriginalFileToDisk(imageStream, uri);
                     }
-
-                    return (imageSize.Name == ImageSize.OriginalImageSize) ? imageStream : GetResizedImage(imageStream, imageSize, fileName);
+                    return (imageSize.Name == ImageSize.OriginalImageSize) ?
+                        imageStream :
+                        GetResizedImage(imageStream, imageSize, GetDownloadPath(uri));
                 }
             }
             catch (Exception exc)
@@ -241,6 +232,18 @@ namespace TAlex.ImageProxy
             }
 
             return String.Format("{0}{1}{2}", dirSeparator, uri.Host, strLocalPath.Replace("%20", " "));
+        }
+
+        private void SaveOriginalFileToDisk(Stream imageStream, Uri uri)
+        {
+            CreateLocalCacheDirectory(uri);
+            string originalName = ResolveFileName(GetDownloadPath(uri), ImageSize.OriginalImageSize);
+
+            using (var fileStream = new FileStream(originalName, FileMode.Create, FileAccess.Write))
+            {
+                imageStream.CopyTo(fileStream);
+                imageStream.Position = 0;
+            }
         }
 
         private void CreateLocalCacheDirectory(Uri uri)
