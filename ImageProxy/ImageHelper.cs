@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿/*using System.IO;
 using System.Windows.Media.Imaging;
 
 
@@ -16,3 +13,4 @@ namespace TAlex.ImageProxy
         }
     }
 }
+*/

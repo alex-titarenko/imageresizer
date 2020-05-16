@@ -1,16 +1,11 @@
-﻿using System;
+﻿
 using System.IO;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-
+using System.Threading.Tasks;
 
 namespace TAlex.ImageProxy
 {
-    [ServiceContract]
     public interface IImageProxyService
     {
-        [OperationContract]
-        [WebGet(UriTemplate = "/{size}/?url={url}", BodyStyle = WebMessageBodyStyle.Bare)]
-        Stream GetImage(string size, string url);
+        Task<Stream> GetImageAsync(string size, string url);
     }
 }

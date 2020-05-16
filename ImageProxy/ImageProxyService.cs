@@ -1,53 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿/*using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
+using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Windows.Media.Imaging;
 using TAlex.ImageProxy.Extensions;
-
+*/
 
 namespace TAlex.ImageProxy
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Multiple)]
-    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
     public class ImageProxyService : IImageProxyService
     {
-        #region Properties
-
-        public ProxySettings Settings
+        /*public ProxySettings Settings
         {
             get;
             private set;
-        }
+        }*/
 
-        #endregion
-
-        #region Constructors
-
-        public ImageProxyService()
+        public async System.Threading.Tasks.Task<System.IO.Stream> GetImageAsync(string size, string url)
         {
-            Settings = ProxySettings.Current;
-        }
+            throw new System.NotImplementedException();
 
-        #endregion
-
-        #region IImageProxyService Members
-
-        public Stream GetImage(string size, string url)
-        {
-            if (String.IsNullOrWhiteSpace(size) || String.IsNullOrWhiteSpace(url))
+            /*if (String.IsNullOrWhiteSpace(size) || String.IsNullOrWhiteSpace(url))
             {
                 Trace.TraceError("Uri and size parameters can't be empty.");
                 return GetErrorStream();
@@ -72,14 +49,10 @@ namespace TAlex.ImageProxy
             {
                 Trace.TraceError("An error was occured during taking image by uri: {0}. Error: {1}", url, exc);
                 return GetErrorStream();
-            }
+            }*/
         }
 
-        #endregion
-
-        #region Methods
-
-        private void SetCacheHeaders(OutgoingWebResponseContext response)
+        /*private void SetCacheHeaders(OutgoingWebResponseContext response)
         {
             response.ContentType = "image/png";
             response.Headers[HttpResponseHeader.CacheControl] = "public";
@@ -139,7 +112,7 @@ namespace TAlex.ImageProxy
 
                     if (Settings.UseLocalCache)
                     {
-                        SaveOriginalFileToDisk(imageStream, uri);
+                        SaveOriginalFileToStorage(imageStream, uri);
                     }
                     return (imageSize.Name == ImageSize.OriginalImageSize) ?
                         imageStream :
@@ -234,32 +207,9 @@ namespace TAlex.ImageProxy
             return String.Format("{0}{1}{2}", dirSeparator, uri.Host, strLocalPath.Replace("%20", " "));
         }
 
-        private void SaveOriginalFileToDisk(Stream imageStream, Uri uri)
+        private void SaveOriginalFileToStorage(Stream imageStream, Uri uri)
         {
-            CreateLocalCacheDirectory(uri);
-            string originalName = ResolveFileName(GetDownloadPath(uri), ImageSize.OriginalImageSize);
-
-            using (var fileStream = new FileStream(originalName, FileMode.Create, FileAccess.Write))
-            {
-                imageStream.CopyTo(fileStream);
-                imageStream.Position = 0;
-            }
-        }
-
-        private void CreateLocalCacheDirectory(Uri uri)
-        {
-            string folderPath = Path.Combine(Settings.LocalCachePath, uri.Host + Path.GetDirectoryName(uri.LocalPath));
-
-            if (!Path.IsPathRooted(folderPath))
-            {
-                folderPath = Path.Combine(HostingEnvironment.ApplicationPhysicalPath, folderPath);
-            }
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-        }
-
-        #endregion
+            throw new NotImplementedException();
+        }*/
     }
 }
