@@ -6,9 +6,7 @@ namespace TAlex.ImageProxy
 {
     public struct ImageSize
     {
-        #region Fields
-
-        private static Regex _imageSizeRegex = new Regex(@"(?<Width>\d+)x(?<Height>\d+)", RegexOptions.Compiled);
+        private static Regex ImageSizeRegex = new Regex(@"(?<Width>\d+)x(?<Height>\d+)", RegexOptions.Compiled);
 
 
         public const string OriginalImageSize = "Original";
@@ -19,10 +17,6 @@ namespace TAlex.ImageProxy
         public readonly int Height;
 
         public readonly string Name;
-
-        #endregion
-
-        #region Constructors
 
         public ImageSize(int width, int height)
             : this(width, height, null)
@@ -36,16 +30,16 @@ namespace TAlex.ImageProxy
             Name = name;
         }
 
-        #endregion
-
-        #region Methods
-
         public override string ToString()
         {
             if (String.IsNullOrEmpty(Name))
+            {
                 return String.Format("{0}x{1}", Width, Height);
+            }
             else
+            {
                 return Name;
+            }
         }
 
         public static ImageSize Parse(string s)
@@ -61,7 +55,7 @@ namespace TAlex.ImageProxy
                 return new ImageSize(-1, -1, OriginalImageSize);
             }
 
-            Match match = _imageSizeRegex.Match(s);
+            Match match = ImageSizeRegex.Match(s);
 
             if (!match.Success)
             {
@@ -73,7 +67,5 @@ namespace TAlex.ImageProxy
 
             return new ImageSize(width, height, name);
         }
-
-        #endregion
     }
 }

@@ -1,100 +1,29 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Configuration;
-using System.Globalization;
-using System.Linq;
-using System.Web;
 
 
 namespace TAlex.ImageProxy
 {
     public class ProxySettings
     {
-        #region Fields
+        public string Small { get; set; }
 
-        protected static ProxySettings _current;
+        public string Medium { get; set; }
 
-        private static readonly List<string> ImageSizeSettings = new List<string>()
-        {
-            "Small", "Medium", "Detail"
-        };
+        public string Detail { get; set; }
 
-        protected readonly NameValueCollection AppSettings;
+        public bool UseCacheStorage { get; set; }
 
-        #endregion
+        public TimeSpan ClientCacheMaxAge { get; set; }
 
-        #region Properties
+        public string UserAgent { get; set; }
 
-        public static ProxySettings Current
-        {
-            get
+        public IDictionary<string, ImageSize> PredefinedImageSizes =>
+            new Dictionary<string, ImageSize>
             {
-                if (_current == null)
-                {
-                    _current = new ProxySettings();
-                }
-                return _current;
-            }
-        }
-
-
-        public IDictionary<string, ImageSize> PredefinedImageSizes { get; private set; }
-
-        public bool UseLocalCache
-        {
-            get
-            {
-                return (bool)Convert.ToBoolean(AppSettings.Get("UseLocalCache"));
-            }
-        }
-
-        public string LocalCachePath
-        {
-            get
-            {
-                return AppSettings.Get("LocalCachePath");
-            }
-        }
-
-        public TimeSpan ClientCacheMaxAge
-        {
-            get
-            {
-                return TimeSpan.Parse(AppSettings.Get("ClientCacheMaxAge"), CultureInfo.InvariantCulture);
-            }
-        }
-
-        public string UserAgent
-        {
-            get
-            {
-                return AppSettings.Get("UserAgent");
-            }
-        }
-
-        #endregion
-
-        #region Constructors
-
-        protected ProxySettings()
-        {
-            AppSettings = ConfigurationManager.AppSettings;
-
-            PredefinedImageSizes = new Dictionary<string, ImageSize>();
-            ImageSizeSettings.ForEach(x => PredefinedImageSizes.Add(GetImageSize(x)));
-        }
-
-        #endregion
-
-        #region Methods
-
-        private KeyValuePair<string, ImageSize> GetImageSize(string name)
-        {
-            return new KeyValuePair<string, ImageSize>(name, ImageSize.Parse(AppSettings[name], name));
-        }
-
-        #endregion
+                [nameof(Small)] = ImageSize.Parse(Small, nameof(Small)),
+                [nameof(Medium)] = ImageSize.Parse(Medium, nameof(Medium)),
+                [nameof(Detail)] = ImageSize.Parse(Detail, nameof(Detail))
+            };
     }
 }
-*/

@@ -4,24 +4,26 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Options;
 
 namespace TAlex.ImageProxy
 {
     public class ImageProxyFunction
     {
         private readonly IImageProxyService imageProxyService;
+        private readonly IOptions<ProxySettings> proxySettings;
         private readonly ILogger logger;
 
-        public ImageProxyFunction(IImageProxyService imageProxyService, ILogger<ImageProxyFunction> logger)
+        public ImageProxyFunction(IImageProxyService imageProxyService, IOptions<ProxySettings> proxySettings, ILogger<ImageProxyFunction> logger)
         {
             this.imageProxyService = imageProxyService;
+            this.proxySettings = proxySettings;
             this.logger = logger;
         }
 
-        [FunctionName("GetImage")]
+        [FunctionName("ResizeImage")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getimage/{size}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "resize/{size}")] HttpRequest req,
             string size)
         {
             this.logger.LogInformation("---------------Start---------------------");
