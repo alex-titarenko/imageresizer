@@ -8,6 +8,7 @@ using System.Net;
 using System;
 using Microsoft.Extensions.Options;
 using TAlex.ImageProxy.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace TAlex.ImageProxy
 {
@@ -48,7 +49,7 @@ namespace TAlex.ImageProxy
             }
 
             var responseHeaders = request.HttpContext.Response.GetTypedHeaders();
-            responseHeaders.CacheControl.Public = true;
+            responseHeaders.CacheControl = new CacheControlHeaderValue { Public = true };
             responseHeaders.LastModified = new DateTimeOffset(new DateTime(1900, 1, 1));
             responseHeaders.Expires = new DateTimeOffset((DateTime.Now + this.clientCacheOptions.Value.MaxAge).ToUniversalTime());
             return true;
