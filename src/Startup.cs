@@ -19,12 +19,12 @@ namespace TAlex.ImageProxy
                 .AddOptions<ImageResizerSettings>()
                 .Configure<IConfiguration>((settings, configuration) => configuration.GetSection("ImageResizer").Bind(settings));
 
-            FixConfiguration(builder.Services);
-
             builder.Services.AddSingleton<IImageResizerService, ImageResizerService>();
+
+            FixConfiguration(builder.Services);
         }
 
-        // TODO: Need to fix configuration
+        // TODO: Need to fix configuration. Code from https://github.com/Azure/azure-functions-host/issues/4464
         public static void FixConfiguration(IServiceCollection services)
         {
             var providers = new List<IConfigurationProvider>();
