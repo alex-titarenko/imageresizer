@@ -10,10 +10,13 @@ namespace TAlex.ImageProxy
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder
-                .Services
+            builder.Services
                 .AddOptions<ProxySettings>()
-                .Configure<IConfiguration>((settings, configuration) => { configuration.Bind("ProxySettings", settings); });
+                .Configure<IConfiguration>((settings, configuration) =>
+                {
+                    configuration.GetSection("ProxySettings").Bind(settings);
+                    //configuration.Bind("ProxySettings", settings);
+                });
 
             builder.Services.AddSingleton<IImageProxyService, ImageProxyService>();
         }

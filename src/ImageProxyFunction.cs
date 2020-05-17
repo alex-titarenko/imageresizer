@@ -23,7 +23,7 @@ namespace TAlex.ImageProxy
 
         [FunctionName("ResizeImage")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "resize/{size}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "resizeimage/{size}")] HttpRequest req,
             string size)
         {
             this.logger.LogInformation("---------------Start---------------------");
