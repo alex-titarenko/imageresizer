@@ -10,17 +10,23 @@ using System.Windows.Media.Imaging;
 using TAlex.ImageProxy.Extensions;
 */
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 namespace TAlex.ImageProxy
 {
-    public class ImageProxyService : IImageProxyService
+    public class ImageResizerService : IImageResizerService
     {
-        /*public ProxySettings Settings
-        {
-            get;
-            private set;
-        }*/
+        private readonly IOptions<ImageResizerSettings> settings;
+        private readonly ILogger logger;
 
-        public async System.Threading.Tasks.Task<System.IO.Stream> GetImageAsync(string size, string url)
+        public ImageResizerService(IOptions<ImageResizerSettings> settings, ILogger<ImageResizerService> logger)
+        {
+            this.settings = settings;
+            this.logger = logger;
+        }
+
+        public async System.Threading.Tasks.Task<System.IO.Stream> ResizeAsync(string size, string url)
         {
             throw new System.NotImplementedException();
 
@@ -90,7 +96,7 @@ namespace TAlex.ImageProxy
                 {
                     return GetResizedImage(OpenImageStream(original), imageSize, requestFileName);
                 }
-            }            
+            }
             return GetImageStream(uri, imageSize);
         }
 
@@ -130,7 +136,7 @@ namespace TAlex.ImageProxy
         {
             BitmapFrame frame = ImageHelper.ReadBitmapFrame(originalStream);
             BitmapFrame resizedFrame = frame.ResizeImage(size.Width, size.Height);
-            
+
             if (Settings.UseLocalCache)
             {
                 string name = ResolveFileName(fileName, size.ToString());
@@ -194,7 +200,7 @@ namespace TAlex.ImageProxy
             // construct path in the hard disk
             string strLocalPath = uri.LocalPath.Replace('/', dirSeparator);
 
-            // check if the path ends with / to can crate the file on the HD 
+            // check if the path ends with / to can crate the file on the HD
             if (strLocalPath.EndsWith(dirSeparator.ToString()))
             {
                 string fileName = string.IsNullOrEmpty(uri.Query) ? "default" : uri.Query.GetHashCode().ToString();

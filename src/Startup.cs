@@ -16,14 +16,15 @@ namespace TAlex.ImageProxy
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services
-                .AddOptions<ProxySettings>()
-                .Configure<IConfiguration>((settings, configuration) => configuration.GetSection("ProxySettings").Bind(settings));
+                .AddOptions<ImageResizerSettings>()
+                .Configure<IConfiguration>((settings, configuration) => configuration.GetSection("ImageResizer").Bind(settings));
 
             FixConfiguration(builder.Services);
 
-            builder.Services.AddSingleton<IImageProxyService, ImageProxyService>();
+            builder.Services.AddSingleton<IImageResizerService, ImageResizerService>();
         }
 
+        // TODO: Need to fix configuration
         public static void FixConfiguration(IServiceCollection services)
         {
             var providers = new List<IConfigurationProvider>();

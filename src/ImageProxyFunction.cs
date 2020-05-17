@@ -10,14 +10,13 @@ namespace TAlex.ImageProxy
 {
     public class ImageProxyFunction
     {
-        private readonly IImageProxyService imageProxyService;
-        private readonly IOptions<ProxySettings> proxySettings;
+        private readonly IImageResizerService imageResizerService;
+
         private readonly ILogger logger;
 
-        public ImageProxyFunction(IImageProxyService imageProxyService, IOptions<ProxySettings> proxySettings, ILogger<ImageProxyFunction> logger)
+        public ImageProxyFunction(IImageResizerService imageProxyService, ILogger<ImageProxyFunction> logger)
         {
-            this.imageProxyService = imageProxyService;
-            this.proxySettings = proxySettings;
+            this.imageResizerService = imageProxyService;
             this.logger = logger;
         }
 
@@ -35,10 +34,8 @@ namespace TAlex.ImageProxy
 
             this.logger.LogInformation("---------------End---------------------");
 
-            return new OkResult();
-
-            //var imageStream = await this.imageProxyService.GetImageAsync(size, url);
-            //return new FileStreamResult(imageStream, "image");
+            var imageStream = await this.imageResizerService.ResizeAsync(size, url);
+            return new FileStreamResult(imageStream, "image");
         }
     }
 }

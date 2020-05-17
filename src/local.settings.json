@@ -4,10 +4,10 @@
       "AzureWebJobsStorage": "",
       "FUNCTIONS_WORKER_RUNTIME": "dotnet"
     },
-    "ProxySettings": {
-      "Small": "200x200",
-      "Medium": "400x400",
-      "Detail": "800x800",
+    "ImageResizer": {
+      "SmallSize": "200x200",
+      "MediumSize": "400x400",
+      "DetailSize": "800x800",
       "UseCacheStorage": "false",
       "ClientCacheMaxAge": "30.00:00:00",
       "UserAgent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
