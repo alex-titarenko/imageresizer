@@ -38,17 +38,12 @@ namespace TAlex.ImageProxy
 
             try
             {
-                var context = WebOperationContext.Current;
-
-                if (context != null)
+                if (context.IncomingRequest.IfModifiedSince.HasValue)
                 {
-                    if (context.IncomingRequest.IfModifiedSince.HasValue)
-                    {
-                        context.OutgoingResponse.StatusCode = HttpStatusCode.NotModified;
-                        return null;
-                    }
-                    SetCacheHeaders(context.OutgoingResponse);
+                    context.OutgoingResponse.StatusCode = HttpStatusCode.NotModified;
+                    return null;
                 }
+                SetCacheHeaders(context.OutgoingResponse);
                 return GetResultStream(NormalizeUrl(url), StringToImageSize(size));
             }
             catch (Exception exc)
