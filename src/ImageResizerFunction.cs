@@ -6,19 +6,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System;
-
+using Microsoft.Extensions.Options;
+using TAlex.ImageProxy.Options;
 
 namespace TAlex.ImageProxy
 {
     public class ImageProxyFunction
     {
         private readonly IImageResizerService imageResizerService;
-
+        private readonly IOptions<ClientCacheOptions> clientCacheOptions;
         private readonly ILogger logger;
 
-        public ImageProxyFunction(IImageResizerService imageProxyService, ILogger<ImageProxyFunction> logger)
+        public ImageProxyFunction(IImageResizerService imageProxyService, IOptions<ClientCacheOptions> clientCacheOptions, ILogger<ImageProxyFunction> logger)
         {
             this.imageResizerService = imageProxyService;
+            this.clientCacheOptions = clientCacheOptions;
             this.logger = logger;
         }
 
@@ -48,7 +50,7 @@ namespace TAlex.ImageProxy
             var responseHeaders = request.HttpContext.Response.GetTypedHeaders();
             responseHeaders.CacheControl.Public = true;
             responseHeaders.LastModified = new DateTimeOffset(new DateTime(1900, 1, 1));
-            responseHeaders.Expires = (DateTime.Now + Settings.ClientCacheMaxAge).ToUniversalTime().ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
+            responseHeaders.Expires = new DateTimeOffset((DateTime.Now + this.clientCacheOptions.Value.MaxAge).ToUniversalTime());
             return true;
         }
     }

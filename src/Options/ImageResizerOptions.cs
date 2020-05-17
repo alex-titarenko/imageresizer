@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 
-namespace TAlex.ImageProxy
+namespace TAlex.ImageProxy.Options
 {
-    public class ImageResizerSettings
+    public class ImageResizerOptions
     {
         public string SmallSize { get; set; }
 
@@ -13,8 +12,6 @@ namespace TAlex.ImageProxy
         public string DetailSize { get; set; }
 
         public bool UseCacheStorage { get; set; }
-
-        public TimeSpan ClientCacheMaxAge { get; set; }
 
         public string UserAgent { get; set; }
 

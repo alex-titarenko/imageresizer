@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs.Host.Bindings;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Options;
+using TAlex.ImageProxy.Options;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -16,9 +17,13 @@ namespace TAlex.ImageProxy
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services
-                .AddOptions<ImageResizerSettings>()
+                .AddOptions<ImageResizerOptions>()
                 .Configure<IConfiguration>((settings, configuration) => configuration.GetSection("ImageResizer").Bind(settings));
+            builder.Services
+                .AddOptions<ClientCacheOptions>()
+                .Configure<IConfiguration>((settings, configuration) => configuration.GetSection("ClientCache").Bind(settings));
 
+            builder.Services.AddHttpClient();
             builder.Services.AddSingleton<IImageResizerService, ImageResizerService>();
 
             FixConfiguration(builder.Services);

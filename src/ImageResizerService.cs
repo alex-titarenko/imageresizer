@@ -10,23 +10,28 @@ using System.Windows.Media.Imaging;
 using TAlex.ImageProxy.Extensions;
 */
 
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TAlex.ImageProxy.Options;
 
 namespace TAlex.ImageProxy
 {
     public class ImageResizerService : IImageResizerService
     {
-        private readonly IOptions<ImageResizerSettings> settings;
+        private readonly HttpClient httpClient;
+        private readonly IOptions<ImageResizerOptions> settings;
         private readonly ILogger logger;
 
-        public ImageResizerService(IOptions<ImageResizerSettings> settings, ILogger<ImageResizerService> logger)
+        public ImageResizerService(HttpClient httpClient, IOptions<ImageResizerOptions> settings, ILogger<ImageResizerService> logger)
         {
+            this.httpClient = httpClient;
             this.settings = settings;
             this.logger = logger;
         }
 
-        public async System.Threading.Tasks.Task<System.IO.Stream> ResizeAsync(string size, string url)
+        public async Task<System.IO.Stream> ResizeAsync(string size, string url)
         {
             throw new System.NotImplementedException();
 
@@ -38,12 +43,6 @@ namespace TAlex.ImageProxy
 
             try
             {
-                if (context.IncomingRequest.IfModifiedSince.HasValue)
-                {
-                    context.OutgoingResponse.StatusCode = HttpStatusCode.NotModified;
-                    return null;
-                }
-                SetCacheHeaders(context.OutgoingResponse);
                 return GetResultStream(NormalizeUrl(url), StringToImageSize(size));
             }
             catch (Exception exc)
@@ -53,14 +52,7 @@ namespace TAlex.ImageProxy
             }*/
         }
 
-        /*private void SetCacheHeaders(OutgoingWebResponseContext response)
-        {
-            response.ContentType = "image/png";
-            response.Headers[HttpResponseHeader.CacheControl] = "public";
-            response.LastModified = new DateTime(1900, 1, 1);
-            response.Headers[HttpResponseHeader.Expires] = (DateTime.Now + Settings.ClientCacheMaxAge).ToUniversalTime().ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
-        }
-
+        /*
         private Stream GetErrorStream()
         {
             if (WebOperationContext.Current != null)
