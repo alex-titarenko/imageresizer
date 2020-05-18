@@ -1,20 +1,12 @@
-﻿/*using System;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
-using System.Net;
-using System.ServiceModel.Web;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Hosting;
-using System.Windows.Media.Imaging;
-using TAlex.ImageProxy.Extensions;
-*/
-
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TAlex.ImageProxy.Options;
+
 
 namespace TAlex.ImageProxy
 {
@@ -33,90 +25,39 @@ namespace TAlex.ImageProxy
 
         public async Task<System.IO.Stream> ResizeAsync(string size, string url)
         {
-            throw new System.NotImplementedException();
-
-            /*if (String.IsNullOrWhiteSpace(size) || String.IsNullOrWhiteSpace(url))
-            {
-                Trace.TraceError("Uri and size parameters can't be empty.");
-                return GetErrorStream();
-            }
-
-            try
-            {
-                return GetResultStream(NormalizeUrl(url), StringToImageSize(size));
-            }
-            catch (Exception exc)
-            {
-                Trace.TraceError("An error was occured during taking image by uri: {0}. Error: {1}", url, exc);
-                return GetErrorStream();
-            }*/
+            return await this.GetResultStreamAsync(NormalizeUrl(url), StringToImageSize(size));
         }
 
-        /*
-        private Stream GetErrorStream()
+        private async Task<Stream> GetResultStreamAsync(Uri uri, ImageSize imageSize)
         {
-            if (WebOperationContext.Current != null)
+            if (this.settings.Value.UseCacheStorage)
             {
-                WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.InternalServerError;
-                WebOperationContext.Current.OutgoingResponse.ContentType = "text/html";
+                throw new NotImplementedException();
             }
-            return new MemoryStream(Encoding.UTF8.GetBytes("<h1>Error 500</h1><h2>Internal Server Error</h2>"));
+
+            return await this.GetImageStreamAsync(uri, imageSize);
         }
 
-        private Stream GetResultStream(Uri uri, ImageSize imageSize)
+        private async Task<Stream> GetImageStreamAsync(Uri uri, ImageSize imageSize)
         {
-            if (Settings.UseLocalCache)
+            this.httpClient.DefaultRequestHeaders.UserAgent.Clear();
+            this.httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(this.settings.Value.UserAgent);
+
+            var imageStream = new MemoryStream();
+            using (var responseStream = await this.httpClient.GetStreamAsync(uri))
             {
-                string requestFileName = GetDownloadPath(uri);
-                string cachedFileName = ResolveFileName(requestFileName, imageSize.ToString());
-
-                // looking for cached file on disk
-                if (File.Exists(cachedFileName))
-                {
-                    return OpenImageStream(cachedFileName);
-                }
-
-                // looking for original file on disk
-                string original = ResolveFileName(requestFileName, ImageSize.OriginalImageSize);
-
-                if (File.Exists(original))
-                {
-                    return GetResizedImage(OpenImageStream(original), imageSize, requestFileName);
-                }
+                responseStream.CopyTo(imageStream);
+                imageStream.Position = 0;
             }
-            return GetImageStream(uri, imageSize);
-        }
 
-        private Stream GetImageStream(Uri uri, ImageSize imageSize)
-        {
-            try
+            if (this.settings.Value.UseCacheStorage)
             {
-                var request = (HttpWebRequest)HttpWebRequest.Create(uri);
-                request.UserAgent = Settings.UserAgent;
-
-                using (var response = request.GetResponse())
-                {
-                    var imageStream = new MemoryStream();
-                    using (var responseStream = response.GetResponseStream())
-                    {
-                        responseStream.CopyTo(imageStream);
-                        imageStream.Position = 0;
-                    }
-
-                    if (Settings.UseLocalCache)
-                    {
-                        SaveOriginalFileToStorage(imageStream, uri);
-                    }
-                    return (imageSize.Name == ImageSize.OriginalImageSize) ?
-                        imageStream :
-                        GetResizedImage(imageStream, imageSize, GetDownloadPath(uri));
-                }
+                this.SaveOriginalFileToStorage(imageStream, uri);
             }
-            catch (Exception exc)
-            {
-                Trace.TraceError(exc.ToString());
-                return GetErrorStream();
-            }
+
+            return (imageSize.Name == ImageSize.OriginalImageSize) ?
+                imageStream :
+                this.GetResizedImage(imageStream, imageSize, GetDownloadPath(uri));
         }
 
         private Stream GetResizedImage(Stream originalStream, ImageSize size, string fileName)
@@ -141,7 +82,7 @@ namespace TAlex.ImageProxy
         private ImageSize StringToImageSize(string value)
         {
             ImageSize imageSize;
-            if (Settings.PredefinedImageSizes.TryGetValue(value, out imageSize))
+            if (this.settings.Value.PredefinedImageSizes.TryGetValue(value, out imageSize))
             {
                 return imageSize;
             }
@@ -180,7 +121,7 @@ namespace TAlex.ImageProxy
             return new Uri(targetUrl.StartsWith(Uri.UriSchemeHttp) ? targetUrl : (Uri.UriSchemeHttp + Uri.SchemeDelimiter + targetUrl));
         }
 
-        private static string GetPathName(Uri uri, string defaultExtension = null)
+        private static string GetPathName(Uri uri, string? defaultExtension = null)
         {
             char dirSeparator = Path.DirectorySeparatorChar;
 
@@ -203,6 +144,6 @@ namespace TAlex.ImageProxy
         private void SaveOriginalFileToStorage(Stream imageStream, Uri uri)
         {
             throw new NotImplementedException();
-        }*/
+        }
     }
 }

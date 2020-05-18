@@ -37,14 +37,13 @@ namespace TAlex.ImageProxy
                 return new FileStreamResult(imageStream, "image/png");
             }
 
-            return null;
+            return new StatusCodeResult((int)HttpStatusCode.NotModified);
         }
 
         private bool SetCacheHeaders(HttpRequest request)
         {
             if (request.HttpContext.Request.GetTypedHeaders().IfModifiedSince.HasValue)
             {
-                request.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotModified;
                 return false;
             }
 
