@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using TAlex.ImageProxy.Options;
 
 
@@ -57,21 +59,24 @@ namespace TAlex.ImageProxy
 
             return (imageSize.Name == ImageSize.OriginalImageSize) ?
                 imageStream :
-                this.GetResizedImage(imageStream, imageSize, GetDownloadPath(uri));
+                this.GetResizedImage(imageStream, imageSize);
         }
 
-        private Stream GetResizedImage(Stream originalStream, ImageSize size, string fileName)
+        private Stream GetResizedImage(Stream originalStream, ImageSize size)
         {
-            BitmapFrame frame = ImageHelper.ReadBitmapFrame(originalStream);
-            BitmapFrame resizedFrame = frame.ResizeImage(size.Width, size.Height);
-
-            if (Settings.UseLocalCache)
+            var resultStream = new MemoryStream();
+            using (var image = Image.Load(originalStream))
             {
-                string name = ResolveFileName(fileName, size.ToString());
-                resizedFrame.SaveToFile(name);
-                return OpenImageStream(name);
+                image.Mutate(x => x.Resize(size.Width, size.Height));
+                image.SaveAsPng(resultStream);
+                resultStream.Position = 0;
             }
-            return resizedFrame.GetStream();
+
+            if (this.settings.Value.UseCacheStorage)
+            {
+                throw new NotImplementedException();
+            }
+            return resultStream;
         }
 
         private static Stream OpenImageStream(string fileName)
@@ -87,28 +92,6 @@ namespace TAlex.ImageProxy
                 return imageSize;
             }
             return ImageSize.Parse(value);
-        }
-
-        private string GetDownloadPath(Uri uri)
-        {
-            return String.IsNullOrWhiteSpace(uri.Query)
-                ? String.Format("{0}{1}", Settings.LocalCachePath, GetPathName(uri))
-                : String.Format("{0}{1}_{2}", Settings.LocalCachePath, GetPathName(uri), uri.Query.GetHashCode());
-        }
-
-        private static string ResolveFileName(string file, string size)
-        {
-            string path = String.Format("{0}\\{1}_{2}",
-                Path.GetDirectoryName(file),
-                Path.GetFileNameWithoutExtension(file),
-                size.ToLowerInvariant());
-
-            if (!Path.IsPathRooted(path))
-            {
-                path = Path.Combine(HostingEnvironment.ApplicationPhysicalPath, path);
-            }
-
-            return path;
         }
 
         private static Uri NormalizeUrl(string url)
