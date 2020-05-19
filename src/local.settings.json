@@ -8,7 +8,6 @@
       "SmallSize": "200x200",
       "MediumSize": "400x400",
       "DetailSize": "800x800",
-      "UseCacheStorage": "false",
       "UserAgent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
     },
     "ClientCache": {

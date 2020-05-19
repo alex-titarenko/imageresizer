@@ -30,10 +30,8 @@ namespace TAlex.ImageProxy
             {
                 return String.Format("{0}x{1}", Width, Height);
             }
-            else
-            {
-                return Name;
-            }
+
+            return Name;
         }
 
         public static ImageSize Parse(string s)
@@ -49,11 +47,11 @@ namespace TAlex.ImageProxy
                 return new ImageSize(-1, -1, OriginalImageSize);
             }
 
-            Match match = ImageSizeRegex.Match(s);
+            var match = ImageSizeRegex.Match(s);
 
             if (!match.Success)
             {
-                throw new FormatException(String.Format("Data {0} is not correct  Image size value", s));
+                throw new FormatException($"Data {s} is not correct  Image size value");
             }
 
             int width = int.Parse(match.Groups["Width"].Value);

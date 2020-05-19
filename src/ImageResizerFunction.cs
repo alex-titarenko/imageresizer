@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using System;
 using Microsoft.Extensions.Options;
@@ -17,13 +16,11 @@ namespace TAlex.ImageProxy
     {
         private readonly IImageResizerService imageResizerService;
         private readonly IOptions<ClientCacheOptions> clientCacheOptions;
-        private readonly ILogger logger;
 
-        public ImageProxyFunction(IImageResizerService imageProxyService, IOptions<ClientCacheOptions> clientCacheOptions, ILogger<ImageProxyFunction> logger)
+        public ImageProxyFunction(IImageResizerService imageProxyService, IOptions<ClientCacheOptions> clientCacheOptions)
         {
             this.imageResizerService = imageProxyService;
             this.clientCacheOptions = clientCacheOptions;
-            this.logger = logger;
         }
 
         [FunctionName("ResizeImage")]

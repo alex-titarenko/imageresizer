@@ -11,8 +11,6 @@ namespace TAlex.ImageProxy.Options
 
         public string? DetailSize { get; set; }
 
-        public bool UseCacheStorage { get; set; }
-
         public string? UserAgent { get; set; }
 
         public IDictionary<string, ImageSize> PredefinedImageSizes

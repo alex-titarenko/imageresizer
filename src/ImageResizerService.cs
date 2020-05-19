@@ -25,22 +25,12 @@ namespace TAlex.ImageProxy
             this.logger = logger;
         }
 
-        public async Task<System.IO.Stream> ResizeAsync(string size, string url)
+        public async Task<Stream> ResizeAsync(string size, string url)
         {
             return await this.GetResultStreamAsync(NormalizeUrl(url), StringToImageSize(size));
         }
 
         private async Task<Stream> GetResultStreamAsync(Uri uri, ImageSize imageSize)
-        {
-            if (this.settings.Value.UseCacheStorage)
-            {
-                throw new NotImplementedException();
-            }
-
-            return await this.GetImageStreamAsync(uri, imageSize);
-        }
-
-        private async Task<Stream> GetImageStreamAsync(Uri uri, ImageSize imageSize)
         {
             this.httpClient.DefaultRequestHeaders.UserAgent.Clear();
             this.httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(this.settings.Value.UserAgent);
@@ -50,11 +40,6 @@ namespace TAlex.ImageProxy
             {
                 responseStream.CopyTo(imageStream);
                 imageStream.Position = 0;
-            }
-
-            if (this.settings.Value.UseCacheStorage)
-            {
-                this.SaveOriginalFileToStorage(imageStream, uri);
             }
 
             return (imageSize.Name == ImageSize.OriginalImageSize) ?
@@ -77,10 +62,6 @@ namespace TAlex.ImageProxy
                 resultStream.Position = 0;
             }
 
-            if (this.settings.Value.UseCacheStorage)
-            {
-                throw new NotImplementedException();
-            }
             return resultStream;
         }
 
@@ -101,12 +82,8 @@ namespace TAlex.ImageProxy
             {
                 targetUrl = Encoding.UTF8.GetString(Convert.FromBase64String(url.Substring(7)));
             }
-            return new Uri(targetUrl.StartsWith(Uri.UriSchemeHttp) ? targetUrl : (Uri.UriSchemeHttp + Uri.SchemeDelimiter + targetUrl));
-        }
 
-        private void SaveOriginalFileToStorage(Stream imageStream, Uri uri)
-        {
-            throw new NotImplementedException();
+            return new Uri(targetUrl.StartsWith(Uri.UriSchemeHttp) ? targetUrl : (Uri.UriSchemeHttp + Uri.SchemeDelimiter + targetUrl));
         }
     }
 }
