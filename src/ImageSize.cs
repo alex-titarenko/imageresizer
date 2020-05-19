@@ -4,10 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace TAlex.ImageProxy
 {
-    public struct ImageSize
+    public readonly struct ImageSize
     {
         private static Regex ImageSizeRegex = new Regex(@"(?<Width>\d+)x(?<Height>\d+)", RegexOptions.Compiled);
-
 
         public const string OriginalImageSize = "Original";
 
@@ -17,11 +16,6 @@ namespace TAlex.ImageProxy
         public readonly int Height;
 
         public readonly string Name;
-
-        public ImageSize(int width, int height)
-            : this(width, height, null)
-        {
-        }
 
         public ImageSize(int width, int height, string name)
         {
@@ -44,12 +38,12 @@ namespace TAlex.ImageProxy
 
         public static ImageSize Parse(string s)
         {
-            return Parse(s, null);
+            return Parse(s, string.Empty);
         }
 
         public static ImageSize Parse(string s, string name)
         {
-            if (String.Equals(s, OriginalImageSize, StringComparison.OrdinalIgnoreCase) ||                
+            if (String.Equals(s, OriginalImageSize, StringComparison.OrdinalIgnoreCase) ||
                 String.Equals(name, OriginalImageSize, StringComparison.OrdinalIgnoreCase))
             {
                 return new ImageSize(-1, -1, OriginalImageSize);
