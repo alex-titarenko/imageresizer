@@ -7,10 +7,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using TAlex.ImageProxy.Options;
+using TAlex.ImageResizer.Service.Options;
 
 
-namespace TAlex.ImageProxy
+namespace TAlex.ImageResizer.Service
 {
     public class ImageResizerService : IImageResizerService
     {

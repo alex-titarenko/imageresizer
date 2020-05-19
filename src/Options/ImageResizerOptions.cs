@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace TAlex.ImageProxy.Options
+namespace TAlex.ImageResizer.Service.Options
 {
     public class ImageResizerOptions
     {

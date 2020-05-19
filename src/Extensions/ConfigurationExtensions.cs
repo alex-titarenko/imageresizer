@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace TAlex.ImageProxy.Extensions
+namespace TAlex.ImageResizer.Service.Extensions
 {
     public static class ConfigurationExtensions
     {

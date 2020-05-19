@@ -1,14 +1,14 @@
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TAlex.ImageProxy;
+using TAlex.ImageResizer.Service;
 using Microsoft.Azure.WebJobs.Host.Bindings;
-using TAlex.ImageProxy.Extensions;
-using TAlex.ImageProxy.Options;
+using TAlex.ImageResizer.Service.Extensions;
+using TAlex.ImageResizer.Service.Options;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
-namespace TAlex.ImageProxy
+namespace TAlex.ImageResizer.Service
 {
     public class Startup : FunctionsStartup
     {

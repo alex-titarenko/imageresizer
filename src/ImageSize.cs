@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 
 
-namespace TAlex.ImageProxy
+namespace TAlex.ImageResizer.Service
 {
     public readonly struct ImageSize
     {

@@ -4,8 +4,8 @@
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
-    <RootNamespace>TAlex.ImageProxy</RootNamespace>
-    <AssemblyName>ImageProxy</AssemblyName>
+    <RootNamespace>TAlex.ImageResizer.Service</RootNamespace>
+    <AssemblyName>TAlex.ImageResizer.Service</AssemblyName>
     <Copyright>Copyright © 2020 Alex Titarenko</Copyright>
   </PropertyGroup>
   <ItemGroup>

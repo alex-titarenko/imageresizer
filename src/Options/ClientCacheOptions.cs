@@ -1,6 +1,6 @@
 using System;
 
-namespace TAlex.ImageProxy.Options
+namespace TAlex.ImageResizer.Service.Options
 {
     public class ClientCacheOptions
     {

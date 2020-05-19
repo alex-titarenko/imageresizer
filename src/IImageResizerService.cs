@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace TAlex.ImageProxy
+namespace TAlex.ImageResizer.Service
 {
     public interface IImageResizerService
     {

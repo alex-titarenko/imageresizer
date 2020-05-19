@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Http;
 using System.Net;
 using System;
 using Microsoft.Extensions.Options;
-using TAlex.ImageProxy.Options;
+using TAlex.ImageResizer.Service.Options;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http.Headers;
 
-namespace TAlex.ImageProxy
+namespace TAlex.ImageResizer.Service
 {
     public class ImageProxyFunction
     {
