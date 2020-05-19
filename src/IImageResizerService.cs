@@ -6,6 +6,6 @@ namespace TAlex.ImageResizer.Service
 {
     public interface IImageResizerService
     {
-        Task<Stream> ResizeAsync(string size, string url);
+        Task<Stream> ResizeAsync(string url, string size);
     }
 }

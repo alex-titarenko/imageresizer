@@ -25,7 +25,7 @@ namespace TAlex.ImageResizer.Service
             this.logger = logger;
         }
 
-        public async Task<Stream> ResizeAsync(string size, string url)
+        public async Task<Stream> ResizeAsync(string url, string size)
         {
             return await this.GetResultStreamAsync(NormalizeUrl(url), StringToImageSize(size));
         }

@@ -24,9 +24,7 @@ namespace TAlex.ImageResizer.Service
         }
 
         [FunctionName("ResizeImage")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "resizeimage/{size}")] HttpRequest req,
-            string size)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
             if (req.HttpContext.Request.GetTypedHeaders().IfModifiedSince.HasValue)
             {
@@ -35,7 +33,8 @@ namespace TAlex.ImageResizer.Service
 
             this.SetCacheHeaders(req.HttpContext.Response.GetTypedHeaders());
             var url = req.Query["url"];
-            var imageStream = await this.imageResizerService.ResizeAsync(size, url);
+            var size = req.Query["size"];
+            var imageStream = await this.imageResizerService.ResizeAsync(url, size);
 
             return new FileStreamResult(imageStream, "image/png");
         }
