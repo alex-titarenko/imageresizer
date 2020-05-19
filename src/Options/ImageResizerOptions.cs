@@ -22,15 +22,15 @@ namespace TAlex.ImageProxy.Options
                 var dic = new Dictionary<string, ImageSize>();
                 if (!string.IsNullOrWhiteSpace(this.SmallSize))
                 {
-                    dic.Add(nameof(SmallSize).ToLowerInvariant(), ImageSize.Parse(SmallSize, nameof(SmallSize)));
+                    dic.Add("small", ImageSize.Parse(SmallSize, "small"));
                 }
                 if (!string.IsNullOrWhiteSpace(this.MediumSize))
                 {
-                    dic.Add(nameof(MediumSize).ToLowerInvariant(), ImageSize.Parse(MediumSize, nameof(MediumSize)));
+                    dic.Add("medium", ImageSize.Parse(MediumSize, "medium"));
                 }
                 if (!string.IsNullOrWhiteSpace(this.DetailSize))
                 {
-                    dic.Add(nameof(DetailSize).ToLowerInvariant(), ImageSize.Parse(DetailSize, nameof(DetailSize)));
+                    dic.Add("detailed", ImageSize.Parse(DetailSize, "detailed"));
                 }
 
                 return dic;
