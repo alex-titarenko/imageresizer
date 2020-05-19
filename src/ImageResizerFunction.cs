@@ -9,6 +9,7 @@ using System;
 using Microsoft.Extensions.Options;
 using TAlex.ImageProxy.Options;
 using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http.Headers;
 
 namespace TAlex.ImageProxy
 {
@@ -30,28 +31,23 @@ namespace TAlex.ImageProxy
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "resizeimage/{size}")] HttpRequest req,
             string size)
         {
-            if (SetCacheHeaders(req))
+            if (req.HttpContext.Request.GetTypedHeaders().IfModifiedSince.HasValue)
             {
-                var url = req.Query["url"];
-                var imageStream = await this.imageResizerService.ResizeAsync(size, url);
-                return new FileStreamResult(imageStream, "image/png");
+                return new StatusCodeResult((int)HttpStatusCode.NotModified);
             }
 
-            return new StatusCodeResult((int)HttpStatusCode.NotModified);
+            this.SetCacheHeaders(req.HttpContext.Response.GetTypedHeaders());
+            var url = req.Query["url"];
+            var imageStream = await this.imageResizerService.ResizeAsync(size, url);
+
+            return new FileStreamResult(imageStream, "image/png");
         }
 
-        private bool SetCacheHeaders(HttpRequest request)
+        private void SetCacheHeaders(ResponseHeaders responseHeaders)
         {
-            if (request.HttpContext.Request.GetTypedHeaders().IfModifiedSince.HasValue)
-            {
-                return false;
-            }
-
-            var responseHeaders = request.HttpContext.Response.GetTypedHeaders();
             responseHeaders.CacheControl = new CacheControlHeaderValue { Public = true };
             responseHeaders.LastModified = new DateTimeOffset(new DateTime(1900, 1, 1));
             responseHeaders.Expires = new DateTimeOffset((DateTime.Now + this.clientCacheOptions.Value.MaxAge).ToUniversalTime());
-            return true;
         }
     }
 }
