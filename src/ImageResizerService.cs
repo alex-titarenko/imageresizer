@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,7 +88,7 @@ namespace TAlex.ImageProxy
         private ImageSize StringToImageSize(string value)
         {
             ImageSize imageSize;
-            if (this.settings.Value.PredefinedImageSizes.TryGetValue(value, out imageSize))
+            if (this.settings.Value.PredefinedImageSizes.TryGetValue(value.ToLowerInvariant(), out imageSize))
             {
                 return imageSize;
             }
