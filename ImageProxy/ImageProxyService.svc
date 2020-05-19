@@ -1,1 +1,0 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="TAlex.ImageProxy.ImageProxyService" CodeBehind="ImageProxyService.svc.cs" %>

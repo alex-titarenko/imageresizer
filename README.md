@@ -1,32 +1,29 @@
-# ImageProxy
-[![Build status](https://ci.appveyor.com/api/projects/status/8ew9bxvyvqaiakak?svg=true)](https://ci.appveyor.com/project/alex-titarenko/imageproxy)
+# ImageResizer Service
 
-Resizing and caching images from web on the fly (WCF service).
+Resize and cache images from the web on the fly (Azure Function V3).
 
 ## Structure of request
 ```
-{service_url}/{image_size}/?url={image_url}
+{service_url}/api/resizeimage?url={image_url}&size={image_size}
 ```
-*image_size* - size in pixels: `width x height` or some of preset values (Small, Medium, Detail, Original)
-
 *image_url* - an URL for image to resizing (can be encoded in base64 format).
+
+*image_size* - size in pixels: `width x height` or some of preset values (Small, Medium, Detail, Original)
 
 ## Examples of usage
 ```
-http://images.example.com/200x150/?url=https://www.google.com.ua/images/srpr/logo11w.png
-http://images.example.com/Medium/?url=https://www.google.com.ua/images/srpr/logo11w.png
-http://images.example.com/Original/?url=https://www.google.com.ua/images/srpr/logo11w.png
-http://images.example.com/Original/?url=base64:aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS51YS9pbWFnZXMvc3Jwci9sb2dvMTF3LnBuZw==
+http://images.example.com?url=https://www.google.com.ua/images/srpr/logo11w.png&size=200x150
+http://images.example.com?url=https://www.google.com.ua/images/srpr/logo11w.png&size=medium
+http://images.example.com?url=https://www.google.com.ua/images/srpr/logo11w.png&size=original
+http://images.example.com?url=base64:aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS51YS9pbWFnZXMvc3Jwci9sb2dvMTF3LnBuZw==&size=original
 ```
 
-## Configuration (Web.config)
-* **Small** - size in pixels for Small predefined value.
-* **Medium** - size in pixels for Medium predefined value.
-* **Detail** - size in pixels for Detail predefined value.
-* **UseLocalCache** - a boolean flag that indicates whether to use local file cache.
-* **LocalCachePath** - folder path to local file cache.
-* **ClientCacheMaxAge** - time span of client cache max age.
-* **UserAgent** - user agent string for downloading images.
+## Configuration (local.settings.json or environment variables)
+* **SmallSize** - size in pixels for Small predefined value.
+* **MediumSize** - size in pixels for Medium predefined value.
+* **DetailSize** - size in pixels for Detail predefined value.
+* **UserAgent** - user agent string for downloaded images.
+* **ClientCache:MaxAge** - time span of client cache max age.
 
 ## License
-ImageProxy is under the [MIT license](LICENSE.md).
+ImageResizer is under the [MIT license](LICENSE.md).

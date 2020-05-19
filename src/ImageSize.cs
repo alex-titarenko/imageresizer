@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Web;
 
 
-namespace TAlex.ImageProxy
+namespace TAlex.ImageResizer.Service
 {
-    public struct ImageSize
+    public readonly struct ImageSize
     {
-        #region Fields
-
-        private static Regex _imageSizeRegex = new Regex(@"(?<Width>\d+)x(?<Height>\d+)", RegexOptions.Compiled);
-
+        private static Regex ImageSizeRegex = new Regex(@"(?<Width>\d+)x(?<Height>\d+)", RegexOptions.Compiled);
 
         public const string OriginalImageSize = "Original";
 
@@ -23,15 +17,6 @@ namespace TAlex.ImageProxy
 
         public readonly string Name;
 
-        #endregion
-
-        #region Constructors
-
-        public ImageSize(int width, int height)
-            : this(width, height, null)
-        {
-        }
-
         public ImageSize(int width, int height, string name)
         {
             Width = width;
@@ -39,36 +24,34 @@ namespace TAlex.ImageProxy
             Name = name;
         }
 
-        #endregion
-
-        #region Methods
-
         public override string ToString()
         {
             if (String.IsNullOrEmpty(Name))
+            {
                 return String.Format("{0}x{1}", Width, Height);
-            else
-                return Name;
+            }
+
+            return Name;
         }
 
         public static ImageSize Parse(string s)
         {
-            return Parse(s, null);
+            return Parse(s, string.Empty);
         }
 
         public static ImageSize Parse(string s, string name)
         {
-            if (String.Equals(s, OriginalImageSize, StringComparison.OrdinalIgnoreCase) ||                
+            if (String.Equals(s, OriginalImageSize, StringComparison.OrdinalIgnoreCase) ||
                 String.Equals(name, OriginalImageSize, StringComparison.OrdinalIgnoreCase))
             {
                 return new ImageSize(-1, -1, OriginalImageSize);
             }
 
-            Match match = _imageSizeRegex.Match(s);
+            var match = ImageSizeRegex.Match(s);
 
             if (!match.Success)
             {
-                throw new FormatException(String.Format("Data {0} is not correct  Image size value", s));
+                throw new FormatException($"Data {s} is not correct  Image size value");
             }
 
             int width = int.Parse(match.Groups["Width"].Value);
@@ -76,7 +59,5 @@ namespace TAlex.ImageProxy
 
             return new ImageSize(width, height, name);
         }
-
-        #endregion
     }
 }
